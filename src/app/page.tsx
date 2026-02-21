@@ -20,7 +20,7 @@ export default async function Home() {
             Thoughtful writing, engineered with Next.js and Supabase.
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg">
-            Fresh articles with a premium reading experience, fast page loads, and scalable content ingestion.
+            Fresh articles with a premium reading experience, fast page loads, and direct Supabase-powered updates.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -28,12 +28,6 @@ export default async function Home() {
               className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:opacity-90"
             >
               Explore all posts
-            </Link>
-            <Link
-              href="/api/ingest"
-              className="rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm text-slate-100 transition hover:bg-white/10"
-            >
-              Ingest endpoint
             </Link>
           </div>
         </section>
@@ -48,7 +42,7 @@ export default async function Home() {
 
           {latestPosts.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-white/20 bg-white/5 p-6 text-sm text-slate-300">
-              No posts yet. Use `POST /api/ingest` after configuring env variables.
+              No posts yet. Add or update rows directly in Supabase `posts` table.
             </div>
           ) : (
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
