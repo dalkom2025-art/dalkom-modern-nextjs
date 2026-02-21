@@ -60,21 +60,57 @@ def slugify(text: str):
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:90]
 
 
+def to_korean_title(source: str, keyword: str, title: str) -> str:
+    text = title
+    replacements = {
+        "organization-level": "조직 단위",
+        "public preview": "퍼블릭 프리뷰",
+        "workflow": "워크플로우",
+        "returns": "반환",
+        "run ids": "실행 ID",
+        "support": "지원",
+        "available": "지원",
+        "now": "이제",
+        "changes to": "변경",
+        "merge commit": "머지 커밋",
+        "generation": "생성",
+        "pull requests": "풀 리퀘스트",
+        "github": "깃허브",
+        "copilot": "코파일럿",
+        "dashboard": "대시보드",
+        "usage metrics": "사용 지표",
+        "test": "테스트",
+    }
+    for en, ko in replacements.items():
+        text = re.sub(en, ko, text, flags=re.IGNORECASE)
+
+    # Reddit 제목은 너무 길고 영어가 많아서 한국어형 제목으로 정규화
+    if source.lower() == "reddit":
+        return f"{keyword} 관련 커뮤니티 최신 이슈"
+
+    # 영어가 과도하면 앞부분 한국어 라벨로 보강
+    if re.fullmatch(r"[\x00-\x7F\s\W]+", text or ""):
+        return f"깃허브 소식: {title[:70]}"
+
+    return text
+
+
 def add_item(items, source, keyword, title, link, summary, dt):
     if not title or not link:
         return
-    ko_excerpt = f"[{source}] {keyword} 관련 최신 소식입니다."
+    ko_title = to_korean_title(source, keyword, title)
+    ko_excerpt = f"[{source}] {keyword} 관련 핵심 요약"
     content = (
-        f"요약(간단): {ko_excerpt}\n"
+        f"한줄 요약: {ko_excerpt}\n"
         f"원문 제목: {title}\n"
         f"원문 링크: {link}\n\n"
-        f"원문 발췌: {summary[:700]}"
+        f"핵심 내용: {summary[:700]}"
     )
     items.append(
         {
             "slug": f"ai-news-{slugify(title)}",
-            "title": f"[{keyword}] 최신 소식",
-            "excerpt": f"{ko_excerpt} 원문 제목: {title[:90]}",
+            "title": ko_title,
+            "excerpt": f"{ko_excerpt} · {summary[:140]}",
             "content": content,
             "source_url": link,
             "tags": ["ai", "news", source.lower(), keyword.lower().replace(" ", "-")],

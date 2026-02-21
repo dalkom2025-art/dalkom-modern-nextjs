@@ -82,8 +82,11 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                 <span>{post.published_at.slice(0, 10)}</span>
               </div>
 
-              <Link href={`/news/${post.slug}`} className="mt-3 inline-flex text-sm font-medium text-[#3a2f24] underline-offset-2 hover:underline">
-                기사 보기
+              <Link
+                href={`/news/${post.slug}`}
+                className="mt-3 inline-flex rounded-md bg-[#2f261f] px-3 py-1.5 text-sm font-semibold text-[#fff8ef] transition hover:bg-[#1f1914]"
+              >
+                원문 보기
               </Link>
             </article>
           ))}
