@@ -18,8 +18,19 @@ KEYWORDS = [
     "AI video workflow",
 ]
 
-GITHUB_FEEDS = [
-    "https://github.blog/changelog/feed/",
+GITHUB_FEEDS = ["https://github.blog/changelog/feed/"]
+
+# 사용자 요청: AI 공식 계정은 기본 대상에 고정
+X_OFFICIAL_ACCOUNTS = [
+    "OpenAI",
+    "AnthropicAI",  # Claude
+    "grok",
+    "Kling_ai",
+    "midjourney",
+    "freepik",
+    "krea_ai",
+    "ComfyUI",
+    "MeshyAI",
 ]
 
 
@@ -56,18 +67,21 @@ def parse_rfc822(s: str):
         return datetime.now(timezone.utc)
 
 
+def parse_iso_or_now(s: str):
+    try:
+        return datetime.fromisoformat((s or "").replace("Z", "+00:00")).astimezone(timezone.utc)
+    except Exception:
+        return datetime.now(timezone.utc)
+
+
 def slugify(text: str):
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:90]
 
 
-def to_korean_title(source: str, keyword: str, title: str) -> str:
-    # 사용자 요청: 제목은 임의 생성하지 말고 원문 기사 제목 그대로 사용
-    return title.strip()
-
 def add_item(items, source, keyword, title, link, summary, dt):
     if not title or not link:
         return
-    ko_title = to_korean_title(source, keyword, title)
+
     ko_excerpt = f"[{source}] {keyword} 관련 핵심 내용을 짧게 정리한 기사입니다."
     content = (
         f"한줄 요약: {ko_excerpt}\n"
@@ -77,7 +91,7 @@ def add_item(items, source, keyword, title, link, summary, dt):
     items.append(
         {
             "slug": f"ai-news-{slugify(title)}",
-            "title": ko_title,
+            "title": title.strip(),  # 사용자 요청: 원문 제목 그대로 사용
             "excerpt": f"{ko_excerpt} · {summary[:140]}",
             "content": content,
             "source_url": link,
@@ -87,9 +101,7 @@ def add_item(items, source, keyword, title, link, summary, dt):
     )
 
 
-def collect_items():
-    out = []
-
+def collect_from_github(out):
     for feed in GITHUB_FEEDS:
         try:
             root = fetch_xml(feed)
@@ -101,13 +113,14 @@ def collect_items():
                 link = (it.findtext("link") or "").strip()
                 desc = clean_html(it.findtext("description") or "")
                 pub = parse_rfc822((it.findtext("pubDate") or "").strip())
-                # GitHub general AI-related filter
                 lowered = f"{title} {desc}".lower()
-                if any(k.lower() in lowered for k in ["copilot", "ai", "model", "llm", "chatgpt", "gemini"]):
+                if any(k in lowered for k in ["copilot", "ai", "model", "llm", "chatgpt", "gemini"]):
                     add_item(out, "GitHub", "AI", title, link, desc, pub)
         except Exception:
             pass
 
+
+def collect_from_reddit(out):
     for kw in KEYWORDS:
         q = urllib.parse.quote(kw)
         feed = f"https://www.reddit.com/search.rss?q={q}&sort=new&t=week"
@@ -125,7 +138,51 @@ def collect_items():
         except Exception:
             pass
 
-    # dedupe by slug/link
+
+def collect_from_x(out, env):
+    api_key = env.get("SOCIAL_SCRAPER_API_KEY") or env.get("SCRAPER_API_KEY")
+    if not api_key:
+        return
+
+    base_url = env.get("SOCIAL_SCRAPER_BASE_URL", "https://api.codewithgenie.com").rstrip("/")
+
+    for username in X_OFFICIAL_ACCOUNTS:
+        payload = {
+            "platform": "x",
+            "username": username,
+            "limit": 3,
+            "offline": False,
+            "refresh": True,
+        }
+        try:
+            req = urllib.request.Request(
+                f"{base_url}/scrape",
+                data=json.dumps(payload).encode("utf-8"),
+                method="POST",
+                headers={
+                    "Content-Type": "application/json",
+                    "X-API-Key": api_key,
+                },
+            )
+            with urllib.request.urlopen(req, timeout=30) as r:
+                result = json.loads(r.read().decode("utf-8"))
+
+            for item in result.get("items", []):
+                title = (item.get("text") or "").strip()
+                link = (item.get("url") or "").strip()
+                created = item.get("created_at")
+                dt = parse_iso_or_now(created)
+                add_item(out, "X", username, title, link, title, dt)
+        except Exception:
+            continue
+
+
+def collect_items(env):
+    out = []
+    collect_from_github(out)
+    collect_from_reddit(out)
+    collect_from_x(out, env)
+
     seen = set()
     deduped = []
     for x in out:
@@ -136,7 +193,7 @@ def collect_items():
         seen.add(x["slug"])
         deduped.append(x)
 
-    return deduped[:30]
+    return deduped[:60]
 
 
 def upsert_supabase(rows, env):
@@ -159,7 +216,7 @@ def upsert_supabase(rows, env):
 
 def main():
     env = load_env("/root/.openclaw/workspace/portfolio-dalkom/.env.local")
-    rows = collect_items()
+    rows = collect_items(env)
     upsert_supabase(rows, env)
 
 
