@@ -12,12 +12,12 @@ export function PostCard({ post }: Readonly<{ post: Post }>) {
       </div>
 
       <h3 className="text-xl font-semibold text-white transition group-hover:text-cyan-200">
-        <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+        <Link href={`/news/${post.slug}`}>{post.title}</Link>
       </h3>
       {post.excerpt && <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-slate-300">{post.excerpt}</p>}
 
       <Link
-        href={`/blog/${post.slug}`}
+        href={`/news/${post.slug}`}
         className="mt-5 inline-flex text-sm font-medium text-cyan-200 transition hover:text-cyan-100"
       >
         Read article →

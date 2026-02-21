@@ -7,30 +7,26 @@ import { getPostBySlug } from "@/lib/posts";
 
 export const dynamic = "force-dynamic";
 
-type PostPageProps = {
-  params: Promise<{
-    slug: string;
-  }>;
+type NewsDetailProps = {
+  params: Promise<{ slug: string }>;
 };
 
-export default async function PostPage({ params }: PostPageProps) {
+export default async function NewsDetailPage({ params }: NewsDetailProps) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
 
-  if (!post) {
-    notFound();
-  }
+  if (!post) notFound();
 
   const paragraphs = post.content
     .split(/\n{2,}/)
-    .map((segment) => segment.trim())
+    .map((s) => s.trim())
     .filter(Boolean);
 
   return (
     <SiteChrome>
       <main>
-        <Link href="/blog" className="inline-flex text-sm text-cyan-200 transition hover:text-cyan-100">
-          ← Back to blog
+        <Link href="/news" className="inline-flex text-sm text-cyan-200 transition hover:text-cyan-100">
+          ← News 목록으로
         </Link>
 
         <article className="mt-5 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl sm:p-10">
@@ -44,10 +40,10 @@ export default async function PostPage({ params }: PostPageProps) {
           </div>
 
           <h1 className="text-3xl font-semibold text-white sm:text-5xl">{post.title}</h1>
-
           {post.excerpt && <p className="mt-5 text-lg leading-relaxed text-slate-300">{post.excerpt}</p>}
 
           {post.cover_url && (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={post.cover_url}
               alt={post.title}
@@ -55,7 +51,7 @@ export default async function PostPage({ params }: PostPageProps) {
             />
           )}
 
-          <div className="prose prose-invert mt-8 max-w-none text-slate-200">
+          <div className="mt-8 max-w-none text-slate-200">
             {paragraphs.map((paragraph) => (
               <p key={paragraph} className="mb-4 leading-8">
                 {paragraph}
@@ -70,7 +66,7 @@ export default async function PostPage({ params }: PostPageProps) {
               rel="noreferrer"
               className="mt-8 inline-flex text-sm text-cyan-200 transition hover:text-cyan-100"
             >
-              Source link ↗
+              원문 보기 ↗
             </a>
           )}
         </article>

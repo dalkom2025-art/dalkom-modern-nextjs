@@ -13,9 +13,10 @@ Modern blog built with Next.js App Router, TypeScript, Tailwind CSS, and Supabas
 
 ## Routes
 
-- `/` latest posts hero + grid
-- `/blog` all posts list
-- `/blog/[slug]` post detail page
+- `/` landing page
+- `/news` all news list
+- `/news/[slug]` news detail page
+- `/images` image gallery page
 
 ## 1) Environment Variables
 

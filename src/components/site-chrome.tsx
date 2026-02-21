@@ -19,11 +19,11 @@ export function SiteChrome({
             DALKOM JOURNAL
           </Link>
           <nav className="flex items-center gap-5 text-sm text-slate-300">
-            <Link className="transition hover:text-white" href="/">
-              Home
+            <Link className="transition hover:text-white" href="/news">
+              News
             </Link>
-            <Link className="transition hover:text-white" href="/blog">
-              Blog
+            <Link className="transition hover:text-white" href="/images">
+              Images
             </Link>
           </nav>
         </header>
