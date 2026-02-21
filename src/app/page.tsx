@@ -35,7 +35,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="mt-8 space-y-4">
+        <section className="mt-8 grid gap-4 sm:grid-cols-2">
           <div>
             <div className="mb-2 flex justify-end">
               <Link
