@@ -1,8 +1,15 @@
 import Link from "next/link";
 
+import { formatDate } from "@/lib/format-date";
+import { getLatestPosts } from "@/lib/posts";
 import { SiteChrome } from "@/components/site-chrome";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const latest = await getLatestPosts(1);
+  const topNews = latest[0];
+
   return (
     <SiteChrome>
       <main>
@@ -28,7 +35,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mt-8 grid gap-4 sm:grid-cols-2">
+        <section className="mt-8 space-y-4">
           <div>
             <div className="mb-2 flex justify-end">
               <Link
@@ -40,6 +47,14 @@ export default function Home() {
             </div>
             <Link href="/news" className="block rounded-2xl border border-white/20 bg-white/5 p-5 transition hover:bg-white/10">
               <h3 className="text-lg font-semibold text-white">News</h3>
+              {topNews ? (
+                <div className="mt-2 text-sm text-slate-300">
+                  <p className="line-clamp-1 text-white">{topNews.title}</p>
+                  <p className="mt-1 text-xs text-slate-400">{formatDate(topNews.published_at)}</p>
+                </div>
+              ) : (
+                <p className="mt-2 text-sm text-slate-400">최신 뉴스 1건이 여기에 표시돼.</p>
+              )}
             </Link>
           </div>
 

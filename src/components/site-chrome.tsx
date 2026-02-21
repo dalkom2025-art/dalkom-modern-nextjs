@@ -13,7 +13,7 @@ export function SiteChrome({
         <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-indigo-500/15 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto flex w-full max-w-6xl flex-col px-6 pb-12 pt-8 sm:px-10">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 pb-12 pt-8 sm:px-10">
         <header className="mb-10 flex items-center justify-between rounded-full border border-white/10 bg-white/5 px-5 py-3 backdrop-blur-xl">
           <Link href="/" className="text-sm font-semibold tracking-[0.18em] text-cyan-200">
             DalKom.ai
@@ -36,7 +36,7 @@ export function SiteChrome({
           </nav>
         </header>
 
-        {children}
+        <div className="flex-1">{children}</div>
 
         <footer className="mt-16 border-t border-white/10 pt-6 text-sm text-slate-400">
           © {new Date().getFullYear()} DalKom.ai
