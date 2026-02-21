@@ -61,30 +61,8 @@ def slugify(text: str):
 
 
 def to_korean_title(source: str, keyword: str, title: str) -> str:
-    lower = title.lower()
-    if "copilot usage metrics" in lower or "usage metrics dashboard" in lower:
-        return "깃허브 코파일럿 사용 지표 대시보드 업데이트"
-    if "workflow dispatch" in lower and "run id" in lower:
-        return "워크플로우 실행 요청 시 실행 ID 제공 기능 추가"
-    if "zed" in lower and "copilot" in lower:
-        return "Zed 에디터 코파일럿 정식 지원 시작"
-    if "merge commit" in lower and "pull request" in lower:
-        return "풀 리퀘스트 머지 커밋 생성 규칙 변경"
-    if "gemini" in lower:
-        return "제미나이 관련 최신 업데이트"
-    if "chatgpt" in lower:
-        return "챗GPT 관련 최신 업데이트"
-    if "kling" in lower:
-        return "클링 관련 최신 업데이트"
-    if "freepik" in lower:
-        return "프리픽 관련 최신 업데이트"
-    if "higgsfield" in lower:
-        return "힉스필드 관련 최신 업데이트"
-
-    if source.lower() == "reddit":
-        return f"{keyword} 커뮤니티 최신 이슈"
-    return "생성형 AI 최신 업데이트"
-
+    # 사용자 요청: 제목은 임의 생성하지 말고 원문 기사 제목 그대로 사용
+    return title.strip()
 
 def add_item(items, source, keyword, title, link, summary, dt):
     if not title or not link:
