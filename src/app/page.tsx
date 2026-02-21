@@ -50,6 +50,7 @@ export default async function Home() {
               {topNews ? (
                 <div className="mt-2 text-sm text-slate-300">
                   <p className="line-clamp-1 text-white">{topNews.title}</p>
+                  {topNews.excerpt && <p className="mt-1 line-clamp-1 text-xs text-slate-300">{topNews.excerpt}</p>}
                   <p className="mt-1 text-xs text-slate-400">{formatDate(topNews.published_at)}</p>
                 </div>
               ) : (
