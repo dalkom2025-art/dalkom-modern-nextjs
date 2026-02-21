@@ -12,7 +12,6 @@ export default async function NewsPage() {
       <main>
         <section className="mb-8">
           <h1 className="text-4xl font-semibold text-white">News</h1>
-          <p className="mt-3 max-w-2xl text-slate-300">스크랩된 뉴스가 시간순으로 정렬돼 있어.</p>
         </section>
 
         {posts.length === 0 ? (
