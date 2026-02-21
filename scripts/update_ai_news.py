@@ -61,50 +61,40 @@ def slugify(text: str):
 
 
 def to_korean_title(source: str, keyword: str, title: str) -> str:
-    text = title
-    replacements = {
-        "organization-level": "조직 단위",
-        "public preview": "퍼블릭 프리뷰",
-        "workflow": "워크플로우",
-        "returns": "반환",
-        "run ids": "실행 ID",
-        "support": "지원",
-        "available": "지원",
-        "now": "이제",
-        "changes to": "변경",
-        "merge commit": "머지 커밋",
-        "generation": "생성",
-        "pull requests": "풀 리퀘스트",
-        "github": "깃허브",
-        "copilot": "코파일럿",
-        "dashboard": "대시보드",
-        "usage metrics": "사용 지표",
-        "test": "테스트",
-    }
-    for en, ko in replacements.items():
-        text = re.sub(en, ko, text, flags=re.IGNORECASE)
+    lower = title.lower()
+    if "copilot usage metrics" in lower or "usage metrics dashboard" in lower:
+        return "깃허브 코파일럿 사용 지표 대시보드 업데이트"
+    if "workflow dispatch" in lower and "run id" in lower:
+        return "워크플로우 실행 요청 시 실행 ID 제공 기능 추가"
+    if "zed" in lower and "copilot" in lower:
+        return "Zed 에디터 코파일럿 정식 지원 시작"
+    if "merge commit" in lower and "pull request" in lower:
+        return "풀 리퀘스트 머지 커밋 생성 규칙 변경"
+    if "gemini" in lower:
+        return "제미나이 관련 최신 업데이트"
+    if "chatgpt" in lower:
+        return "챗GPT 관련 최신 업데이트"
+    if "kling" in lower:
+        return "클링 관련 최신 업데이트"
+    if "freepik" in lower:
+        return "프리픽 관련 최신 업데이트"
+    if "higgsfield" in lower:
+        return "힉스필드 관련 최신 업데이트"
 
-    # Reddit 제목은 너무 길고 영어가 많아서 한국어형 제목으로 정규화
     if source.lower() == "reddit":
-        return f"{keyword} 관련 커뮤니티 최신 이슈"
-
-    # 영어가 과도하면 앞부분 한국어 라벨로 보강
-    if re.fullmatch(r"[\x00-\x7F\s\W]+", text or ""):
-        return f"깃허브 소식: {title[:70]}"
-
-    return text
+        return f"{keyword} 커뮤니티 최신 이슈"
+    return "생성형 AI 최신 업데이트"
 
 
 def add_item(items, source, keyword, title, link, summary, dt):
     if not title or not link:
         return
     ko_title = to_korean_title(source, keyword, title)
-    ko_excerpt = f"[{source}] {keyword} 관련 핵심 요약"
+    ko_excerpt = f"[{source}] {keyword} 관련 핵심 내용을 짧게 정리한 기사입니다."
     content = (
         f"한줄 요약: {ko_excerpt}\n"
-        f"원문 제목: {title}\n"
         f"원문 링크: {link}\n\n"
-        f"핵심 내용: {summary[:700]}"
+        "핵심 내용: 기능 변경 포인트와 활용 관점을 중심으로 확인할 수 있습니다."
     )
     items.append(
         {
