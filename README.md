@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dalkom Journal (Next.js + Supabase)
 
-## Getting Started
+Modern blog built with Next.js App Router, TypeScript, Tailwind CSS, and Supabase.
 
-First, run the development server:
+## Features
+
+- Premium modern UI for home, blog index, and post detail pages
+- Supabase-backed posts table
+- Reusable Supabase clients for server and browser usage
+- Reusable post data functions in `src/lib/posts.ts`
+- Secure ingest endpoint (`POST /api/ingest`) with shared secret header
+- SQL schema at `supabase/schema.sql` (table + indexes + updated_at trigger)
+
+## Routes
+
+- `/` latest posts hero + grid
+- `/blog` all posts list
+- `/blog/[slug]` post detail page
+- `/api/ingest` post ingest/upsert endpoint (POST)
+
+## 1) Environment Variables
+
+Copy `.env.example` to `.env.local` and set values:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Required variables:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `INGEST_SECRET`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Never commit real keys.
 
-## Learn More
+## 2) Supabase Setup
 
-To learn more about Next.js, take a look at the following resources:
+Run the SQL in `supabase/schema.sql` inside your Supabase SQL editor.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This creates:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `public.posts` table
+- `posts_published_at_idx`
+- `posts_tags_gin_idx`
+- `set_updated_at` trigger function + update trigger
 
-## Deploy on Vercel
+## 3) Install and Run Locally
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm install
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open `http://localhost:3000`.
+
+## 4) Ingest API Usage
+
+Endpoint: `POST /api/ingest`
+
+Header:
+
+- `x-ingest-secret: <INGEST_SECRET>`
+
+Body (single post):
+
+```json
+{
+  "slug": "hello-supabase",
+  "title": "Hello Supabase",
+  "excerpt": "Short summary",
+  "content": "Full post body",
+  "cover_url": "https://example.com/cover.jpg",
+  "tags": ["nextjs", "supabase"],
+  "source_url": "https://example.com/source",
+  "published_at": "2026-02-21T12:00:00Z"
+}
+```
+
+Body (multiple posts):
+
+```json
+{
+  "posts": [
+    {
+      "slug": "post-1",
+      "title": "Post 1",
+      "content": "Body"
+    }
+  ]
+}
+```
+
+`slug` is used for upsert conflict handling.
+
+## 5) Build and Deploy
+
+```bash
+npm run build
+npm start
+```
+
+Deploy to Vercel (or similar) and set the same environment variables in your hosting dashboard.
+
+Notes:
+
+- `SUPABASE_SERVICE_ROLE_KEY` is server-only and must never be exposed client-side.
+- The app pages are dynamic so content is fetched at request time.
