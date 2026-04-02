@@ -17,6 +17,16 @@ create table if not exists public.posts (
 create index if not exists posts_published_at_idx on public.posts (published_at desc);
 create index if not exists posts_tags_gin_idx on public.posts using gin (tags);
 
+alter table public.posts enable row level security;
+
+drop policy if exists "Public read access for posts" on public.posts;
+
+create policy "Public read access for posts"
+on public.posts
+for select
+to anon, authenticated
+using (true);
+
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
